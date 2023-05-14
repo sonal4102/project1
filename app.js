@@ -53,6 +53,7 @@ app.post("/register", async (req, res) => {
 		}
 
 		await User.create({
+            
 			fname: fname,
 			lname: lname,
 			email: email,
@@ -114,9 +115,9 @@ app.post("/userData", async (req, res) => {
 
 
   app.post("/upload-image", async (req, res) => {
-    const { base64 } = req.body;
+    const { base64 ,email} = req.body;
     try {
-      await Images.create({ image: base64 });
+      await Images.create({ image: base64, email:email });
       res.send({ Status: "success" })
   
     } catch (error) {
@@ -128,9 +129,18 @@ app.post("/userData", async (req, res) => {
 
 
   app.get("/get-image", async (req, res) => {
+    const email= req.query.email;
     try {
       await Images.find({}).then(data => {
-        res.send({ status: "success", data: data })
+
+        const data1 =[]
+        data.filter((item) => {
+            if (item.email == email) {
+                data1.push(item);
+            }
+        })
+
+        res.send({ status: "success", data: data1 })
       })
   
     } catch (error) {
