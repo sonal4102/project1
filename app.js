@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 const mongoose = require("mongoose");
 app.use(express.json());
 const cors = require("cors");
@@ -33,9 +35,10 @@ app.get("/", (req, res) => {
 });
 
 require("./userDetails");
+require("./imageDetails");
 
 const User = mongoose.model("UserInfo");
-
+const Images= mongoose.model("ImageDetails");
 app.post("/register", async (req, res) => {
 	const { fname, lname, email, password } = req.body;
 	const encryptedPassword = await bcrypt.hash(password, 10);
@@ -108,3 +111,29 @@ app.post("/userData", async (req, res) => {
       res.send({ status: "error", data: error });
     }
   });
+
+
+  app.post("/upload-image", async (req, res) => {
+    const { base64 } = req.body;
+    try {
+      await Images.create({ image: base64 });
+      res.send({ Status: "success" })
+  
+    } catch (error) {
+      res.send({ Status: "error", data: error });
+  
+    }
+  })
+
+
+
+  app.get("/get-image", async (req, res) => {
+    try {
+      await Images.find({}).then(data => {
+        res.send({ status: "success", data: data })
+      })
+  
+    } catch (error) {
+  
+    }
+  })
